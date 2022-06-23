@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta  charset="utf-8">
+        <title> IVM </title>
+    </head>
+    <body style="padding:20px">
+        <a href="/{{ ivm }}"> < home </a>
+        <h2> IVM : {{ serial_num }} - {{ supplier }} </h2>
+
+        {% if replenishment_events and unit_sum %}
+        {% if unit_sum|length > 0 %}
+            <p> the replenishment events done in this IVM are: </p>
+            <ul>
+                {% for product in unit_sum %}
+                        <li> product : {{ product[0] }} </li>
+                        <ul>
+                            {% for replenishment_event in replenishment_events %}
+                                {% if replenishment_event[0] == product[0] %}
+                                    <li> event @ {{ replenishment_event[4] }} </li>
+                                    <ul>
+                                        <li> units : {{ replenishment_event[5] }}</li>
+                                        <li> tin : {{ replenishment_event[6] }}</li>
+                                    </ul>
+                                {% endif %}
+                            {% endfor %}
+                            <li> total : {{ product[1] }}</li>
+                        </ul>
+                        <br>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p> This IVM has no replanishment  </p>
+        {% endif %}
+        {% else %}
+            <p> This category has no replenishment events </p>
+        {% endif %}
+
+
+    </body>
+</html>

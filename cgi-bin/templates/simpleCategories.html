@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta  charset="utf-8">
+        <title> Simple Category </title>
+    </head>
+    <body style="padding:20px">
+        <a href="/{{ category }}"> < home </a>
+        <h1> Simple Category </h1>
+        {% if cursor %}
+	    {% if cursor.rowcount > 0 %}
+            <table border="2px">
+                <thead>
+                    <tr>
+                        <th>category_name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in cursor %}
+                        <tr>
+                            <td>{{ record[0] }}</td>
+                            <td> <a href="/{{ simple }}remove/?category_name={{ record[0] }}">remover</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+	    {% else %}
+	    	<p> This page is empty </p>
+	    {% endif %}
+        {% else %}
+            <p> Error: obtaining information from database! </p>
+        {% endif %}
+
+	<a href="/{{ simple }}?page={{ [0, page - 1]|max }}"> prev page </a>
+	<a href="/{{ simple }}?page={{ page + 1 }}"> next page </a>
+    
+    </body>
+</html>

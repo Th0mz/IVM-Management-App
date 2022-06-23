@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta  charset="utf-8">
+        <title> IVM </title>
+    </head>
+    <body style="padding:20px">
+        <a href="/{{ app }}"> < home </a>
+        <h1> Intelligent Vending Machines </h1>
+
+        {% if cursor %}
+        {% if cursor.rowcount > 0 %}
+            <table border="2px">
+                <thead>
+                    <tr>
+                        <th>serial number</th>
+                        <th>supplier</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in cursor %}
+                        <tr>
+                            <td>{{ record[0] }}</td>
+                            <td>{{ record[1] }}</td>
+                            <td><a href="/{{ ivm }}view/?serial_num={{ record[0] }}&supplier={{ record[1] }}">  view  </a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p> This page is empty </p>
+        {% endif %}
+        {% else %}
+            <p> Error: obtaining information from database! </p>
+        {% endif %}
+
+    <a href="/{{ ivm }}?page={{ [0, page - 1]|max }}"> prev page </a>
+    <a href="/{{ ivm }}?page={{ page + 1 }}"> next page </a>
+    </body>
+</html>
