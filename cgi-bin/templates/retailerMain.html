@@ -7,5 +7,52 @@
     <body style="padding:20px">
         <a href="/{{ app }}"> < home </a>
         <h1> Retailers </h1>
+
+        {% if cursor %}
+        {% if cursor.rowcount > 0 %}
+            <table border="2px">
+                <thead>
+                    <tr>
+                        <th>tin</th>
+                        <th>name</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in cursor %}
+                        <tr>
+                            <td>{{ record[0] }}</td>
+                            <td>{{ record[1] }}</td>
+                            <td> <a href="/{{ retailer }}remove/?tin={{ record[0] }}">remover</a></td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p> This page is empty </p>
+        {% endif %}
+        {% else %}
+            <p> Error: obtaining information from database! </p>
+        {% endif %}
+
+    <a href="/{{ retailer }}?page={{ [0, page - 1]|max }}"> prev page </a>
+    <a href="/{{ retailer }}?page={{ page + 1 }}"> next page </a>
+    
+    <br><br>
+    <hr>
+    <h3> add new super category </h3>
+    <form action="/{{ retailer }}add/" method="post">
+        <label for="name"></label>Retailer Name : <br>
+        <input type="text" id="name" name="name" maxlength="80" required><br>
+
+        <label for="tin"></label>Retailer TIN : <br>
+        <input type="text" id="tin" name="tin" maxlength="80" required><br>
+
+        <br>
+        <input type="submit" value="Submit">
+
+    </form>
+
+    <hr>    
     </body>
 </html>

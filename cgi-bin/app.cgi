@@ -44,6 +44,9 @@ SIMPLE_CATEGORY_TABLE = "simple_category"
 HAS_OTHER_TABLE = "has_other"
 IVM_TABLE = "ivm"
 REPLENISHMENT_TABLE = "replenishment_event"
+RETAILER_TABLE = "retailer"
+PRODUCTS_TABLE = "product"
+RESPONSIBLE_FOR_TABLE = "responsible_for"
 
 # columns
 CATEGORY_KEY = "category_name"
@@ -53,6 +56,7 @@ SERIAL_NUMBER = "serial_num"
 SUPPLIER = "supplier"
 UNITS = "units"
 EAN = "ean"
+TIN = "tin"
 
 app = Flask(__name__)
 
@@ -406,7 +410,95 @@ def copyRecords (cursor):
 
 @app.route("/retailer/")
 def retailer():
-        return render_template("retailerMain.html", app=APP_PATH)
+        cursor = None
+        dbConn = None
+
+        try:
+                # get current page
+                page = request.args.get("page")
+                if (page == None):
+                        page = 0
+
+                page = int(page)
+                page_offset = page * TABLE_SIZE
+                query = f"SELECT * FROM {RETAILER_TABLE} OFFSET {page_offset} FETCH FIRST {TABLE_SIZE} ROWS ONLY"
+                dbConn, cursor = dbConnect()
+                cursor.execute(query)
+
+                return render_template("retailerMain.html", cursor=cursor, page=page, retailer=RETAILER_PATH, app=APP_PATH)
+        except Exception as e:
+                title = "Error"
+                text = "The following error occurred \'" + str(e) + "\'"
+                return render_template("prompt.html", title=title, text=text, return_to=RETAILER_PATH)
+        finally:
+                cursor.close()
+                dbConn.close()
+
+@app.route("/retailer/remove/")
+def retailerRemove():
+        cursor = None
+        dbConn = None
+
+        try:
+                # connect to the database
+                dbConn, cursor = dbConnect()
+                tin = request.args.get("tin")
+
+                # delete all relations with its subcategories and its supercategories
+                query = f"DELETE FROM {REPLENISHMENT_TABLE} WHERE {TIN} = %s"
+                cursor.execute(query, (tin,))
+
+                # delete category_name from super category table
+                query = f"DELETE FROM {RETAILER_TABLE} WHERE {TIN} = %s"
+                cursor.execute(query, (tin,))
+
+                # commit changes
+                dbConn.commit()
+                title = "Remove"
+                text = f"Successfully removed the retailer with TIN : { tin }"
+
+                return render_template("prompt.html", title=title, text=text, return_to=RETAILER_PATH)
+        except Exception as e:
+                title = "Error"
+                text = "The following error occurred \'" + str(e) + "\'"
+                return render_template("prompt.html", title=title, text=text, return_to=RETAILER_PATH)
+        finally:
+                cursor.close()
+                dbConn.close()
+
+
+@app.route("/retailer/add/", methods=["POST"])
+def retailerAdd():
+
+        cursor = None
+        dbConn = None
+
+        try:
+                name = request.form["name"]
+                tin = request.form["tin"]
+
+                dbConn, cursor = dbConnect()
+
+                # add new retailer
+                query = f"INSERT INTO {RETAILER_TABLE} VALUES (%s, %s);"
+                cursor.execute(query, (tin, name))
+
+                # commit changes 
+                dbConn.commit()
+
+                title = "Success"
+                text = f"Successfully created retailer {tin} : {name}"
+
+                return render_template("prompt.html", title=title, text=text, return_to=RETAILER_PATH)
+        except Exception as e:
+                title = "Error"
+                text = "The following error occurred \'" + str(e) + "\'"
+                return render_template("prompt.html", title=title, text=text, return_to=RETAILER_PATH)
+        finally:
+                cursor.close()
+                dbConn.close()
+
+
 
 
 
